@@ -178,9 +178,9 @@ async function onCallbackQuery (callbackQuery) {
   return answerCallbackQuery(callbackQuery.id, 'Button press acknowledged!')
 }
 
-async function getMinecraftStatus() {
+async function getMinecraftStatus(serverPort) {
   try {
-    const response = await fetch("https://api.mcsrvstat.us/bedrock/3/mc2.888521.xyz:19133");
+    const response = await fetch(`https://api.mcsrvstat.us/bedrock/3/mc2.888521.xyz:${serverPort}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch Minecraft server status: ${response.statusText}`);
     }
@@ -196,6 +196,7 @@ async function getMinecraftStatus() {
  * Handle incoming Message
  * https://core.telegram.org/bots/api#message
  */
+
 async function onMessage (message) {
   if (message.text.startsWith('/start') || message.text.startsWith('/help')) {
     return sendMarkdownV2Text(message.chat.id, '*Functions:*\n' +
@@ -204,14 +205,30 @@ async function onMessage (message) {
         '/button2 - Sends a message with two button\n' +
         '/button4 - Sends a message with four buttons\n' +
         '/markdown - Sends some MarkdownV2 examples\n' +
-        '/status - Query my mc server players status\n',
+        '/mc_guaiwu - Query my mc server players status (Port: 19133)\n' +
+        '/mc_train - Query my mc server players status (Port: 19132)\n' +
+        '/mc_survival - Query my mc server players status (Port: 19140)\n',
         '`'))
   } 
-  else if (message.text.startsWith('/status')) {
-    const playerCount = await getMinecraftStatus();
-    const messageText = `There are currently ${playerCount} players online on your Minecraft server.`;
+  else if (message.text.startsWith('/mc_guaiwu')) {
+    const serverPort = 19133;
+    const playerCount = await getMinecraftStatus(serverPort);
+    const messageText = `There are currently ${playerCount} players online on your Minecraft server (Port: ${serverPort}).`;
     await sendMarkdownV2Text(message.chat.id, escapeMarkdown(messageText))
-  }else if (message.text.startsWith('/button2')) {
+  }
+  else if (message.text.startsWith('/mc_train')) {
+    const serverPort = 19132;
+    const playerCount = await getMinecraftStatus(serverPort);
+    const messageText = `There are currently ${playerCount} players online on your Minecraft server (Port: ${serverPort}).`;
+    await sendMarkdownV2Text(message.chat.id, escapeMarkdown(messageText))
+  }
+  else if (message.text.startsWith('/mc_survival')) {
+    const serverPort = 19140;
+    const playerCount = await getMinecraftStatus(serverPort);
+    const messageText = `There are currently ${playerCount} players online on your Minecraft server (Port: ${serverPort}).`;
+    await sendMarkdownV2Text(message.chat.id, escapeMarkdown(messageText))
+  }
+  else if (message.text.startsWith('/button2')) {
     return sendTwoButtons(message.chat.id)
   } else if (message.text.startsWith('/button4')) {
     return sendFourButtons(message.chat.id)
